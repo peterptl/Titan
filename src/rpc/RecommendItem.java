@@ -36,16 +36,22 @@ public class RecommendItem extends HttpServlet {
    */
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
-    String userId = request.getParameter("user_id");
-    double lat = Double.parseDouble(request.getParameter("lat"));
-    double lon = Double.parseDouble(request.getParameter("lon"));
-    Recommendation recommendation = new GeoRecommendation();
-    List<Item> items = recommendation.recommendItems(userId, lat, lon);
+	  HttpSession session = request.getSession();
+		if (session.getAttribute("user") == null) {
+			response.setStatus(403);
+			return;
+		}
+		String userId = session.getAttribute("user").toString();
+		//String userId = request.getParameter("user_id");
+		double lat = Double.parseDouble(request.getParameter("lat"));
+		double lon = Double.parseDouble(request.getParameter("lon"));
+		Recommendation recommendation = new GeoRecommendation();
+		List<Item> items = recommendation.recommendItems(userId, lat, lon);
     
-    // Convert the list of items into json array.
-    JSONArray array = RpcHelper.getJSONArray(items);
-    RpcHelper.writeJsonArray(response, array);
-  }
+		// Convert the list of items into json array.
+		JSONArray array = RpcHelper.getJSONArray(items);
+		RpcHelper.writeJsonArray(response, array);
+  	}
 
   /**
    * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
